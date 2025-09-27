@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud9 Sports Network</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0;
+      color: #222;
+    }
+    header {
+      background: #111;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    header a {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      background: #e4002b;
+      color: #fff;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    main {
+      max-width: 800px;
+      margin: 1rem auto;
+      padding: 0 1rem;
+    }
+    .post {
+      background: #fff;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .post h2 {
+      font-size: 1.2rem;
+      margin: 0 0 0.5rem;
+    }
+    .post time {
+      font-size: 0.8rem;
+      color: #666;
+    }
+    .post p {
+      margin: 0.8rem 0;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+    .post a {
+      display: inline-block;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: #e4002b;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Cloud9 Sports Network</h1>
+    <a href="https://t.me/Cloud9" target="_blank">Join on Telegram</a>
+  </header>
+  <main id="content">
+    <p>Loading posts...</p>
+  </main>
+
+  <script>
+    // Change this to your Vercel API URL
+    const TELEGRAM_API = "https://<your-vercel-app>.vercel.app/api/telegram-feed";
+
+    async function loadPosts() {
+      const content = document.getElementById("content");
+      try {
+        const res = await fetch(TELEGRAM_API);
+        const data = await res.json();
+
+        if (!data.items || !data.items.length) {
+          content.innerHTML = "<p>No posts found. Please post something new in your Telegram channel.</p>";
+          return;
+        }
+
+        content.innerHTML = "";
+        data.items.forEach(post => {
+          const el = document.createElement("div");
+          el.className = "post";
+
+          const title = document.createElement("h2");
+          title.textContent = post.text.split("\n")[0].slice(0, 80);
+          el.appendChild(title);
+
+          const date = document.createElement("time");
+          date.textContent = new Date(post.date).toLocaleString();
+          el.appendChild(date);
+
+          const body = document.createElement("p");
+          body.textContent = post.text;
+          el.appendChild(body);
+
+          if (post.link) {
+            const link = document.createElement("a");
+            link.href = post.link;
+            link.textContent = "Read on Telegram";
+            link.target = "_blank";
+            el.appendChild(link);
+          }
+
+          content.appendChild(el);
+        });
+      } catch (err) {
+        content.innerHTML = "<p>Error loading posts. Please try again later.</p>";
+        console.error(err);
+      }
+    }
+
+    loadPosts();
+  </script>
+</body>
+</html>
