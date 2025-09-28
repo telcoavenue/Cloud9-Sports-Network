@@ -1,125 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cloud9 Sports Network</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fa;
+      font-family: 'Roboto', sans-serif;
+      background: #0d1117;
+      color: #f0f0f0;
       margin: 0;
       padding: 0;
-      color: #222;
     }
     header {
-      background: #111;
-      color: #fff;
-      padding: 1rem;
+      background: #1f6feb;
+      padding: 20px;
       text-align: center;
     }
+    header img {
+      max-height: 60px;
+    }
     header h1 {
-      margin: 0;
+      margin: 10px 0 0;
       font-size: 1.8rem;
     }
-    header a {
-      display: inline-block;
-      margin-top: 0.5rem;
-      padding: 0.4rem 0.8rem;
-      background: #e4002b;
-      color: #fff;
-      border-radius: 4px;
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-    main {
+    .container {
       max-width: 800px;
-      margin: 1rem auto;
-      padding: 0 1rem;
+      margin: 40px auto;
+      padding: 0 20px;
     }
     .post {
-      background: #fff;
-      border-radius: 6px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      background: #161b22;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
     }
     .post h2 {
+      margin: 0 0 10px;
       font-size: 1.2rem;
-      margin: 0 0 0.5rem;
-    }
-    .post time {
-      font-size: 0.8rem;
-      color: #666;
+      color: #58a6ff;
     }
     .post p {
-      margin: 0.8rem 0;
+      margin: 0 0 10px;
       line-height: 1.5;
-      white-space: pre-line;
     }
     .post a {
-      display: inline-block;
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      color: #e4002b;
+      color: #58a6ff;
       text-decoration: none;
     }
   </style>
 </head>
 <body>
   <header>
+    <img src="logo.png" alt="Cloud9 Sports Network Logo">
     <h1>Cloud9 Sports Network</h1>
-    <a href="https://t.me/Cloud9" target="_blank">Join on Telegram</a>
   </header>
-  <main id="content">
-    <p>Loading posts...</p>
-  </main>
+  <div class="container" id="posts"></div>
 
   <script>
-    // Change this to your Vercel API URL
-    const TELEGRAM_API = "https://<your-vercel-app>.vercel.app/api/telegram-feed";
-
     async function loadPosts() {
-      const content = document.getElementById("content");
       try {
-        const res = await fetch(TELEGRAM_API);
+        const res = await fetch('https://cloud9-sports-nework-backend.vercel.app/api/telegram-feed');
         const data = await res.json();
+        const postsContainer = document.getElementById('posts');
+        postsContainer.innerHTML = '';
 
-        if (!data.items || !data.items.length) {
-          content.innerHTML = "<p>No posts found. Please post something new in your Telegram channel.</p>";
-          return;
+        if (data.items && data.items.length > 0) {
+          data.items.forEach(item => {
+            const postEl = document.createElement('div');
+            postEl.classList.add('post');
+            postEl.innerHTML = `
+              <h2>Post #${item.id}</h2>
+              <p>${item.text || '(no text)'}</p>
+              <p><small>${new Date(item.date).toLocaleString()}</small></p>
+              <p><a href="${item.link}" target="_blank">View on Telegram</a></p>
+            `;
+            postsContainer.appendChild(postEl);
+          });
+        } else {
+          postsContainer.innerHTML = '<p>No posts found.</p>';
         }
-
-        content.innerHTML = "";
-        data.items.forEach(post => {
-          const el = document.createElement("div");
-          el.className = "post";
-
-          const title = document.createElement("h2");
-          title.textContent = post.text.split("\n")[0].slice(0, 80);
-          el.appendChild(title);
-
-          const date = document.createElement("time");
-          date.textContent = new Date(post.date).toLocaleString();
-          el.appendChild(date);
-
-          const body = document.createElement("p");
-          body.textContent = post.text;
-          el.appendChild(body);
-
-          if (post.link) {
-            const link = document.createElement("a");
-            link.href = post.link;
-            link.textContent = "Read on Telegram";
-            link.target = "_blank";
-            el.appendChild(link);
-          }
-
-          content.appendChild(el);
-        });
       } catch (err) {
-        content.innerHTML = "<p>Error loading posts. Please try again later.</p>";
         console.error(err);
+        document.getElementById('posts').innerHTML = '<p>Error loading posts.</p>';
       }
     }
 
@@ -127,3 +92,4 @@
   </script>
 </body>
 </html>
+
